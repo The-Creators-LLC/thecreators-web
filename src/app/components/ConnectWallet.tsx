@@ -15,14 +15,19 @@ function Account() {
 function WalletOptions() {
   const { connectors, connect } = useConnect();
 
-  return connectors.map((connector) => (
-    <Button key={connector.uid} onClick={() => connect({ connector })}>
-      {connector.name}
-    </Button>
-  ));
+  return (
+    <>
+      <Text>Connect your wallet</Text>
+      {connectors.map((connector) => (
+        <Button key={connector.uid} onClick={() => connect({ connector })}>
+          {connector.name}
+        </Button>
+      ))}
+    </>
+  );
 }
 
-export function ConnectWallet() {
+export default function ConnectWallet() {
   const { isConnected } = useAccount();
   if (isConnected) return <Account />;
   return <WalletOptions />;
