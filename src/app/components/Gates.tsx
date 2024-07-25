@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  Box,
   Text,
   Flex,
   IconButton,
@@ -10,31 +9,9 @@ import {
 import { motion } from "framer-motion";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import useSWR from "swr";
-import { guildClient, THE_CREATORS_GUILD_ID } from "../../lib/guild";
-import { Role } from "@guildxyz/types";
+import { fetchFeaturedRoles, RoleAndRequirements } from "@/lib/guild";
 
-const featuredRoles = {
-  [THE_CREATORS_GUILD_ID]: ["Gate 00", "Follow The Goose", "Honkler"],
-};
-
-async function fetchFeaturedRoles() {
-  const allRoles = await Promise.all(
-    Object.entries(featuredRoles).map(([guildId, roleNames]) =>
-      fetchGuildFeaturedRoles(Number(guildId), roleNames)
-    )
-  );
-  return allRoles.flat();
-}
-
-async function fetchGuildFeaturedRoles(
-  guildId: number,
-  featuredRoleNames: string[]
-) {
-  const roles = await guildClient.guild.role.getAll(guildId);
-  return roles.filter((role) => featuredRoleNames.includes(role.name));
-}
-
-const GatesCarousel = ({ gates }: { gates: Role[] }) => {
+const GatesCarousel = ({ gates }: { gates: RoleAndRequirements[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const isMobile = useBreakpointValue({ base: true, md: false });
 
@@ -115,6 +92,11 @@ const GatesCarousel = ({ gates }: { gates: Role[] }) => {
                 <Text fontSize="sm" color="blue.500">
                   Members: {gate.memberCount}
                 </Text>
+                {gate.requirements.map((requirement, index) => (
+                  <Text key={index} fontSize="sm" color="gray.500">
+                    Requirement {index}: {JSON.stringify(requirement, null, 2)}
+                  </Text>
+                ))}
               </VStack>
             </motion.div>
           ))}
@@ -143,6 +125,8 @@ export default function Gates() {
   if (isPublicGatesLoading) {
     return <Text>Loading gates...</Text>;
   }
+
+  console.log("publicGates", publicGates);
 
   if (!publicGates || publicGates.length === 0) {
     return <Text>No public gates available.</Text>;
