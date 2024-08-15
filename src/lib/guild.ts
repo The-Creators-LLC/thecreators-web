@@ -5,9 +5,11 @@ export const guildClient = createGuildClient("the-creators-ui");
 
 // https://api.guild.xyz/v2/guilds/thecreators
 export const THE_CREATORS_GUILD_ID = 67920;
+export const DEV_GUILD_ID = 73942;
 
 const featuredRoles = {
   [THE_CREATORS_GUILD_ID]: ["Gate 00", "Follow The Goose", "Honkler"],
+  [DEV_GUILD_ID]: ["Gate 00", "Gate 01"],
 };
 
 export type RoleAndRequirements = Role & { requirements: Requirement[] };
