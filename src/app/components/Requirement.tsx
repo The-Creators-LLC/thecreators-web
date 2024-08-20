@@ -42,11 +42,23 @@ export default function Requirement({
       );
     }
     case "FARCASTER_FOLLOW": {
-      const link = `https://warpcast.com/${requirement.data.id}`;
       return (
         <Text fontSize="sm" color="gray.500">
-          Requirement {index}: Follow {requirement.data.id} on Farcaster (TODO
-          get username from guild-sdk)
+          Requirement {index}: Follow {requirement.data.id} on Farcaster{" "}
+          {/* TODO
+          get username from guild-sdk */}
+        </Text>
+      );
+    }
+    case "TWITTER_FOLLOW": {
+      const link = `https://x.com/${requirement.data.id}`;
+      return (
+        <Text fontSize="sm" color="gray.500">
+          Requirement {index}: Follow{" "}
+          <Link href={link} color="blue.500" isExternal>
+            {requirement.data.id} <ExternalLinkIcon mx="2px" />
+          </Link>
+          on Twitter
         </Text>
       );
     }
@@ -55,6 +67,12 @@ export default function Requirement({
         <Text fontSize="sm" color="gray.500">
           Requirement {index}: Hold at least {requirement.data.minAmount}{" "}
           {requirement.symbol ?? requirement.name}
+        </Text>
+      );
+    case "FREE":
+      return (
+        <Text fontSize="sm" color="gray.500">
+          Requirement {index}: Free to join
         </Text>
       );
     default:

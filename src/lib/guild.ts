@@ -1,5 +1,6 @@
-import { createGuildClient } from "@guildxyz/sdk";
-import { Requirement, Role } from "@guildxyz/types";
+import { createGuildClient, createSigner } from "@guildxyz/sdk";
+import { Requirement, Role, UserProfile } from "@guildxyz/types";
+import { SignMessageMutateAsync } from "wagmi/query";
 
 export const guildClient = createGuildClient("the-creators-ui");
 
@@ -12,7 +13,15 @@ const featuredRoles = {
   [DEV_GUILD_ID]: ["Gate 00", "Gate 01"],
 };
 
-export type RoleAndRequirements = Role & { requirements: Requirement[] };
+export const guildNames: Record<number, string> = {
+  [THE_CREATORS_GUILD_ID]: "The Creators",
+  [DEV_GUILD_ID]: "Dev Guild",
+};
+
+export type RoleAndRequirements = Role & {
+  requirements: Requirement[];
+  guildId: number;
+};
 
 async function fetchGuildFeaturedRoles(
   guildId: number,
@@ -28,7 +37,7 @@ async function fetchGuildFeaturedRoles(
         guildId,
         role.id
       );
-      return { ...role, requirements };
+      return { ...role, requirements, guildId };
     })
   );
   return featuredRolesWithRequirements;
@@ -42,4 +51,46 @@ export async function fetchFeaturedRoles() {
   );
 
   return allRoles.flat();
+}
+
+export function getSigner(
+  signMessageAsync: SignMessageMutateAsync,
+  address: string
+) {
+  return createSigner.custom(
+    (message) => signMessageAsync({ message }),
+    address
+  );
+}
+
+export async function fetchUserProfile(
+  signMessageAsync: SignMessageMutateAsync,
+  address?: string
+): Promise<UserProfile | undefined> {
+  if (!address) {
+    return;
+  }
+  const userProfile = localStorage.getItem(address);
+  if (userProfile) {
+    const parsedProfile = JSON.parse(userProfile);
+    // TODO check if profile is stale
+    return parsedProfile;
+  } else {
+    const profile = await guildClient.user.getProfile(
+      address,
+      getSigner(signMessageAsync, address)
+    );
+    localStorage.setItem(address, JSON.stringify(profile));
+    return profile;
+  }
+}
+
+export async function fetchMemberships(guildUserId?: number) {
+  if (!guildUserId) {
+    return;
+  }
+  return guildClient.guild.getUserMemberships(
+    THE_CREATORS_GUILD_ID,
+    guildUserId
+  );
 }

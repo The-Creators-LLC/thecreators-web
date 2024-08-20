@@ -5,12 +5,95 @@ import {
   IconButton,
   useBreakpointValue,
   VStack,
+  Button,
+  Box,
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import useSWR from "swr";
-import { fetchFeaturedRoles, RoleAndRequirements } from "@/lib/guild";
+import {
+  fetchFeaturedRoles,
+  fetchMemberships,
+  fetchUserProfile,
+  getSigner,
+  guildClient,
+  guildNames,
+  RoleAndRequirements,
+} from "@/lib/guild";
 import Requirement from "./Requirement";
+import { useAccount, useSignMessage } from "wagmi";
+
+const Gate = ({ gate }: { gate: RoleAndRequirements }) => {
+  const { signMessageAsync } = useSignMessage();
+  const { address } = useAccount();
+  const [showData, setShowData] = useState(false);
+  const [data, setData] = useState<any>(null);
+
+  const checkAccess = async () => {
+    try {
+      if (!address) {
+        throw new Error("No address found");
+      }
+      const userProfile = await fetchUserProfile(signMessageAsync, address);
+      if (!userProfile) {
+        throw new Error("No user profile found");
+      }
+      const requirements = await guildClient.guild.getUserMemberships(
+        gate.guildId,
+        userProfile.id
+      );
+      setData(requirements.find((r) => r.roleId === gate.id));
+      setShowData(true);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  return (
+    <VStack
+      bg="white"
+      boxShadow="xl"
+      borderRadius="lg"
+      p={6}
+      textAlign="center"
+      w="60%"
+      h="80%"
+      maxH="80%"
+      overflowY="auto"
+      spacing={4}
+    >
+      <Text fontSize="xl" fontWeight="bold">
+        {gate.name}
+      </Text>
+
+      <Text fontSize="md" color="gray.600">
+        Guild: {guildNames[gate.guildId]}
+      </Text>
+
+      <Text fontSize="md" color="gray.600">
+        {gate.description}
+      </Text>
+
+      <Text fontSize="sm" color="blue.500">
+        Members: {gate.memberCount}
+      </Text>
+
+      {gate.requirements.map((requirement, index) => (
+        <Requirement key={index} requirement={requirement} index={index} />
+      ))}
+
+      <Button colorScheme="blue" onClick={checkAccess}>
+        Check Access
+      </Button>
+
+      {showData && (
+        <Box>
+          <Text>Data: {JSON.stringify(data, null, 2)}</Text>
+        </Box>
+      )}
+    </VStack>
+  );
+};
 
 const GatesCarousel = ({ gates }: { gates: RoleAndRequirements[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -27,7 +110,7 @@ const GatesCarousel = ({ gates }: { gates: RoleAndRequirements[] }) => {
   };
 
   return (
-    <Flex direction="column" align="center" w="100%" h="60vh">
+    <Flex direction="column" align="center" w="100%" h="77vh">
       <Flex
         flex={1}
         w="100%"
@@ -72,35 +155,7 @@ const GatesCarousel = ({ gates }: { gates: RoleAndRequirements[] }) => {
                 justifyContent: "center",
               }}
             >
-              <VStack
-                bg="white"
-                boxShadow="xl"
-                borderRadius="lg"
-                p={6}
-                textAlign="center"
-                w={isMobile ? "90%" : "60%"}
-                h="auto"
-                maxH="80%"
-                overflowY="auto"
-                spacing={4}
-              >
-                <Text fontSize="xl" fontWeight="bold">
-                  {gate.name}
-                </Text>
-                <Text fontSize="md" color="gray.600">
-                  {gate.description}
-                </Text>
-                <Text fontSize="sm" color="blue.500">
-                  Members: {gate.memberCount}
-                </Text>
-                {gate.requirements.map((requirement, index) => (
-                  <Requirement
-                    key={index}
-                    requirement={requirement}
-                    index={index}
-                  />
-                ))}
-              </VStack>
+              <Gate gate={gate} />
             </motion.div>
           ))}
         </Flex>
@@ -120,10 +175,27 @@ const GatesCarousel = ({ gates }: { gates: RoleAndRequirements[] }) => {
 };
 
 export default function Gates() {
+  const { address } = useAccount();
+  const { signMessageAsync } = useSignMessage();
+
   const { data: publicGates, isLoading: isPublicGatesLoading } = useSWR(
     ["gates", "public"],
     fetchFeaturedRoles
   );
+
+  const { data: userProfile, isLoading: isUserProfileLoading } = useSWR(
+    ["user", address],
+    () => fetchUserProfile(signMessageAsync, address)
+  );
+
+  console.log("userProfile", userProfile);
+
+  const { data: memberships, isLoading: isMembershipsLoading } = useSWR(
+    address ? ["memberships", userProfile?.id] : null,
+    () => fetchMemberships(userProfile?.id)
+  );
+
+  console.log("memberships", memberships);
 
   if (isPublicGatesLoading) {
     return <Text>Loading gates...</Text>;
