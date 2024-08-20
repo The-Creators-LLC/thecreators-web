@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import useSWR from "swr";
 import { fetchFeaturedRoles, RoleAndRequirements } from "@/lib/guild";
+import Requirement from "./Requirement";
 
 const GatesCarousel = ({ gates }: { gates: RoleAndRequirements[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -93,9 +94,11 @@ const GatesCarousel = ({ gates }: { gates: RoleAndRequirements[] }) => {
                   Members: {gate.memberCount}
                 </Text>
                 {gate.requirements.map((requirement, index) => (
-                  <Text key={index} fontSize="sm" color="gray.500">
-                    Requirement {index}: {JSON.stringify(requirement, null, 2)}
-                  </Text>
+                  <Requirement
+                    key={index}
+                    requirement={requirement}
+                    index={index}
+                  />
                 ))}
               </VStack>
             </motion.div>
