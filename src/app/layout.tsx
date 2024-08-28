@@ -9,6 +9,7 @@ import "../lib/guild";
 import "./globals.css";
 import { injected, walletConnect } from "wagmi/connectors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Provider as JotaiProvider } from "jotai";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,9 +36,11 @@ export default function RootLayout({
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <html lang="en">
-          <body className={inter.className}>{children}</body>
-        </html>
+        <JotaiProvider>
+          <html lang="en">
+            <body className={inter.className}>{children}</body>
+          </html>
+        </JotaiProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

@@ -8,14 +8,14 @@ const ConnectWallet = dynamic(() => import("./components/ConnectWallet"), {
   ssr: false,
 });
 
-const Gates = dynamic(() => import("./components/Gates"), { ssr: false });
+const Roles = dynamic(() => import("./components/Roles"), { ssr: false });
 
 export default function Home() {
   return (
     <ChakraProvider>
       <Stack alignItems={"start"} spacing={8} padding={8}>
         <ConnectWallet />
-        <Gates />
+        <Roles />
       </Stack>
     </ChakraProvider>
   );

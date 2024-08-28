@@ -18,16 +18,29 @@ import {
   getSigner,
   guildClient,
   guildNames,
-  RoleAndRequirements,
+  RoleRequirementsAndRewards,
 } from "@/lib/guild";
 import Requirement from "./Requirement";
 import { useAccount, useSignMessage } from "wagmi";
+import Reward from "./Reward";
+import { atom, useAtom } from "jotai";
 
-const Gate = ({ gate }: { gate: RoleAndRequirements }) => {
+const accessAtom = atom<Record<string, { access: boolean; updated: Date }>>({});
+
+const Role = ({ role }: { role: RoleRequirementsAndRewards }) => {
+  const [access, setAccess] = useAtom(accessAtom);
   const { signMessageAsync } = useSignMessage();
   const { address } = useAccount();
-  const [showData, setShowData] = useState(false);
-  const [data, setData] = useState<any>(null);
+
+  const userAccess = access[role.id] ?? { access: false };
+
+  /* const getSecrets = async () => {
+    const signer = getSigner(signMessageAsync, address);
+    const rewards =
+      requirement &&
+      (await guildClient.guild.reward.getAll(role.guildId, signer));
+    console.log("rewards", rewards);
+  }; */
 
   const checkAccess = async () => {
     try {
@@ -39,11 +52,53 @@ const Gate = ({ gate }: { gate: RoleAndRequirements }) => {
         throw new Error("No user profile found");
       }
       const requirements = await guildClient.guild.getUserMemberships(
-        gate.guildId,
+        role.guildId,
         userProfile.id
       );
-      setData(requirements.find((r) => r.roleId === gate.id));
-      setShowData(true);
+
+      setAccess((prev) => ({
+        ...prev,
+        ...requirements.reduce(
+          (acc, r) => ({
+            ...acc,
+            [r.roleId]: { access: r.access, updated: new Date() },
+          }),
+          {}
+        ),
+      }));
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const join = async () => {
+    try {
+      console.log("join", role.guildId, role.id);
+      if (!address) {
+        throw new Error("No address found");
+      }
+      const userProfile = await fetchUserProfile(signMessageAsync, address);
+      if (!userProfile) {
+        throw new Error("No user profile found");
+      }
+      const signer = getSigner(signMessageAsync, address);
+      const { success, accessedRoleIds } = await guildClient.guild.join(
+        role.guildId,
+        signer
+      );
+      console.log("success", success);
+      console.log("accessedRoleIds", accessedRoleIds);
+      setAccess((prev) => ({
+        ...prev,
+        [role.id]: { access: false, updated: new Date() },
+        ...accessedRoleIds.reduce(
+          (acc, r) => ({
+            ...acc,
+            [r]: { access: true, updated: new Date() },
+          }),
+          {}
+        ),
+      }));
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -63,49 +118,71 @@ const Gate = ({ gate }: { gate: RoleAndRequirements }) => {
       spacing={4}
     >
       <Text fontSize="xl" fontWeight="bold">
-        {gate.name}
+        {role.name}
       </Text>
 
       <Text fontSize="md" color="gray.600">
-        Guild: {guildNames[gate.guildId]}
+        Guild: {guildNames[role.guildId]}
       </Text>
 
       <Text fontSize="md" color="gray.600">
-        {gate.description}
+        {role.description}
       </Text>
 
       <Text fontSize="sm" color="blue.500">
-        Members: {gate.memberCount}
+        Members: {role.memberCount}
       </Text>
 
-      {gate.requirements.map((requirement, index) => (
-        <Requirement key={index} requirement={requirement} index={index} />
+      {userAccess.updated ? (
+        <>
+          <Button colorScheme="blue" onClick={join}>
+            Re-check Access
+          </Button>
+          <Text fontSize="sm" color="gray.500">
+            Access: {userAccess.access ? "Granted" : "Denied"} (last updated:{" "}
+            {userAccess.updated.toISOString()})
+          </Text>
+        </>
+      ) : (
+        <Button colorScheme="blue" onClick={checkAccess}>
+          Check Access
+        </Button>
+      )}
+
+      <Text fontSize="md" color="gray.600">
+        {userAccess.access ? "✅ " : "🔒 "}Requirements:
+      </Text>
+
+      {role.requirements.map((requirement, index) => (
+        <Requirement
+          key={index}
+          requirement={requirement}
+          access={userAccess.access}
+        />
       ))}
 
-      <Button colorScheme="blue" onClick={checkAccess}>
-        Check Access
-      </Button>
+      <Text fontSize="md" color="gray.600">
+        Rewards:
+      </Text>
 
-      {showData && (
-        <Box>
-          <Text>Data: {JSON.stringify(data, null, 2)}</Text>
-        </Box>
-      )}
+      {role.rewards.map((reward, index) => (
+        <Reward key={index} reward={reward} index={index} />
+      ))}
     </VStack>
   );
 };
 
-const GatesCarousel = ({ gates }: { gates: RoleAndRequirements[] }) => {
+const RolesCarousel = ({ roles }: { roles: RoleRequirementsAndRewards[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  const nextGate = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % gates.length);
+  const nextRole = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % roles.length);
   };
 
-  const prevGate = () => {
+  const prevRole = () => {
     setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + gates.length) % gates.length
+      (prevIndex) => (prevIndex - 1 + roles.length) % roles.length
     );
   };
 
@@ -120,7 +197,7 @@ const GatesCarousel = ({ gates }: { gates: RoleAndRequirements[] }) => {
       >
         <IconButton
           icon={<ChevronLeftIcon />}
-          onClick={prevGate}
+          onClick={prevRole}
           position="absolute"
           left={2}
           zIndex={2}
@@ -136,9 +213,9 @@ const GatesCarousel = ({ gates }: { gates: RoleAndRequirements[] }) => {
           align="center"
           position="relative"
         >
-          {gates.map((gate, index) => (
+          {roles.map((role, index) => (
             <motion.div
-              key={gate.id}
+              key={role.id}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{
                 opacity: index === currentIndex ? 1 : 0.5,
@@ -155,13 +232,13 @@ const GatesCarousel = ({ gates }: { gates: RoleAndRequirements[] }) => {
                 justifyContent: "center",
               }}
             >
-              <Gate gate={gate} />
+              <Role role={role} />
             </motion.div>
           ))}
         </Flex>
         <IconButton
           icon={<ChevronRightIcon />}
-          onClick={nextGate}
+          onClick={nextRole}
           position="absolute"
           right={2}
           zIndex={2}
@@ -174,12 +251,12 @@ const GatesCarousel = ({ gates }: { gates: RoleAndRequirements[] }) => {
   );
 };
 
-export default function Gates() {
+export default function Roles() {
   const { address } = useAccount();
   const { signMessageAsync } = useSignMessage();
 
-  const { data: publicGates, isLoading: isPublicGatesLoading } = useSWR(
-    ["gates", "public"],
+  const { data: publicRoles, isLoading: isPublicRolesLoading } = useSWR(
+    ["roles", "public"],
     fetchFeaturedRoles
   );
 
@@ -197,15 +274,15 @@ export default function Gates() {
 
   console.log("memberships", memberships);
 
-  if (isPublicGatesLoading) {
+  if (isPublicRolesLoading) {
     return <Text>Loading gates...</Text>;
   }
 
-  console.log("publicGates", publicGates);
+  console.log("publicRoles", publicRoles);
 
-  if (!publicGates || publicGates.length === 0) {
+  if (!publicRoles || publicRoles.length === 0) {
     return <Text>No public gates available.</Text>;
   }
 
-  return <GatesCarousel gates={publicGates} />;
+  return <RolesCarousel roles={publicRoles} />;
 }
