@@ -23,7 +23,7 @@ import Requirement from "./Requirement";
 import { useAccount, useSignMessage } from "wagmi";
 import Reward from "./Reward";
 import { useAtom } from "jotai";
-import { accessAtom } from "@/lib/atom";
+import { accessAtom, publicProfileAtom } from "@/lib/atom";
 
 const Role = ({ role }: { role: RoleRequirementsAndRewards }) => {
   const [access, setAccess] = useAtom(accessAtom);
@@ -71,20 +71,26 @@ const Role = ({ role }: { role: RoleRequirementsAndRewards }) => {
       if (!userProfile) {
         throw new Error("No user profile found");
       }
+      // TODO only join if not already a member
       const signer = getSigner(signMessageAsync, address);
       const { success, accessedRoleIds } = await guildClient.guild.join(
         role.guildId,
         signer
       );
-      console.log("success", success);
+      console.log("join success", success);
       console.log("accessedRoleIds", accessedRoleIds);
+
+      const rolesAndAccess = await guildClient.guild.accessCheck(
+        role.guildId,
+        getSigner(signMessageAsync, address)
+      );
+      console.log("rolesAndAccess", rolesAndAccess);
       setAccess((prev) => ({
         ...prev,
-        [role.id]: { access: false, updated: new Date() },
-        ...accessedRoleIds.reduce(
+        ...rolesAndAccess.reduce(
           (acc, r) => ({
             ...acc,
-            [r]: { access: true, updated: new Date() },
+            [r.roleId]: { ...r, updated: new Date() },
           }),
           {}
         ),
@@ -149,7 +155,13 @@ const Role = ({ role }: { role: RoleRequirementsAndRewards }) => {
         <Requirement
           key={index}
           requirement={requirement}
-          access={userAccess.access}
+          access={
+            (userAccess.access ||
+              userAccess.requirements?.find(
+                (r) => r.requirementId === requirement.id
+              )?.access) ??
+            false
+          }
         />
       ))}
 
@@ -246,6 +258,7 @@ const RolesCarousel = ({ roles }: { roles: RoleRequirementsAndRewards[] }) => {
 export default function Roles() {
   const { address } = useAccount();
   const { signMessageAsync } = useSignMessage();
+  const [publicProfile] = useAtom(publicProfileAtom);
 
   const { data: publicRoles, isLoading: isPublicRolesLoading } = useSWR(
     ["roles", "public"],
@@ -274,6 +287,12 @@ export default function Roles() {
 
   if (!publicRoles || publicRoles.length === 0) {
     return <Text>No public gates available.</Text>;
+  }
+
+  if (address && !publicProfile?.publicKey) {
+    return (
+      <Text>You need to create an guild.xyz account to access gates.</Text>
+    );
   }
 
   return <RolesCarousel roles={publicRoles} />;

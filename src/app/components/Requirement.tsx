@@ -96,7 +96,7 @@ export default function Requirement({
   }
   return (
     <Text fontSize="sm" color="gray.500">
-      {access && "✔️"} {getText()}
+      {access ? "✔️" : "❌"} {getText()}
     </Text>
   );
 }
