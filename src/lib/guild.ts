@@ -24,7 +24,10 @@ export const guildNames: Record<number, string> = {
   [DEV_GUILD_ID]: "Dev Guild",
 };
 
-export type Reward = RoleReward & { guildReward?: GuildReward };
+export type Reward = RoleReward & {
+  guildReward?: GuildReward;
+  guildId: number;
+};
 
 export type RoleRequirementsAndRewards = Role & {
   requirements: Requirement[];
@@ -53,6 +56,7 @@ async function fetchGuildFeaturedRoles(
         rewards: rewards.map((r) => ({
           ...r,
           guildReward: guildRewards.find((gr) => gr.id === r.guildPlatformId),
+          guildId,
         })),
         guildId,
       };

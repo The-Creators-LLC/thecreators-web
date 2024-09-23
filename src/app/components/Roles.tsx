@@ -6,7 +6,6 @@ import {
   useBreakpointValue,
   VStack,
   Button,
-  Box,
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
@@ -23,9 +22,8 @@ import {
 import Requirement from "./Requirement";
 import { useAccount, useSignMessage } from "wagmi";
 import Reward from "./Reward";
-import { atom, useAtom } from "jotai";
-
-const accessAtom = atom<Record<string, { access: boolean; updated: Date }>>({});
+import { useAtom } from "jotai";
+import { accessAtom } from "@/lib/atom";
 
 const Role = ({ role }: { role: RoleRequirementsAndRewards }) => {
   const [access, setAccess] = useAtom(accessAtom);
@@ -33,14 +31,6 @@ const Role = ({ role }: { role: RoleRequirementsAndRewards }) => {
   const { address } = useAccount();
 
   const userAccess = access[role.id] ?? { access: false };
-
-  /* const getSecrets = async () => {
-    const signer = getSigner(signMessageAsync, address);
-    const rewards =
-      requirement &&
-      (await guildClient.guild.reward.getAll(role.guildId, signer));
-    console.log("rewards", rewards);
-  }; */
 
   const checkAccess = async () => {
     try {
@@ -121,13 +111,15 @@ const Role = ({ role }: { role: RoleRequirementsAndRewards }) => {
         {role.name}
       </Text>
 
-      <Text fontSize="md" color="gray.600">
-        Guild: {guildNames[role.guildId]}
+      <Text fontSize="md" color="gray.500">
+        <i>{guildNames[role.guildId]}</i>
       </Text>
 
-      <Text fontSize="md" color="gray.600">
-        {role.description}
-      </Text>
+      {role.description && (
+        <Text fontSize="md" color="gray.600">
+          {role.description}
+        </Text>
+      )}
 
       <Text fontSize="sm" color="blue.500">
         Members: {role.memberCount}
@@ -136,7 +128,7 @@ const Role = ({ role }: { role: RoleRequirementsAndRewards }) => {
       {userAccess.updated ? (
         <>
           <Button colorScheme="blue" onClick={join}>
-            Re-check Access
+            Update Access
           </Button>
           <Text fontSize="sm" color="gray.500">
             Access: {userAccess.access ? "Granted" : "Denied"} (last updated:{" "}
@@ -166,7 +158,7 @@ const Role = ({ role }: { role: RoleRequirementsAndRewards }) => {
       </Text>
 
       {role.rewards.map((reward, index) => (
-        <Reward key={index} reward={reward} index={index} />
+        <Reward key={index} reward={reward} access={userAccess.access} />
       ))}
     </VStack>
   );

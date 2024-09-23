@@ -1,4 +1,4 @@
-# the-creators-ui
+# the-creators-web
 
 This [Next.js](https://nextjs.org/) project was bootstrapped using the [`guild-sdk` example project](https://github.com/guildxyz/guild-sdk/tree/main/examples/next-js).
 
