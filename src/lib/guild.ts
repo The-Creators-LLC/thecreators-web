@@ -7,6 +7,7 @@ import {
   UserProfile,
 } from "@guildxyz/types";
 import { SignMessageMutateAsync } from "wagmi/query";
+import { publicProfileAtom } from "./atom";
 
 export const guildClient = createGuildClient("the-creators-ui");
 
@@ -92,19 +93,11 @@ export async function fetchUserProfile(
   if (!address) {
     return;
   }
-  const userProfile = localStorage.getItem(address);
-  if (userProfile) {
-    const parsedProfile = JSON.parse(userProfile);
-    // TODO check if profile is stale
-    return parsedProfile;
-  } else {
-    const profile = await guildClient.user.getProfile(
-      address,
-      getSigner(signMessageAsync, address)
-    );
-    localStorage.setItem(address, JSON.stringify(profile));
-    return profile;
-  }
+  const profile = await guildClient.user.getProfile(
+    address,
+    getSigner(signMessageAsync, address)
+  );
+  return profile;
 }
 
 export async function fetchMemberships(guildUserId?: number) {

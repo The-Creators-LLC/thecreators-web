@@ -7,7 +7,6 @@ import {
   VStack,
   Button,
 } from "@chakra-ui/react";
-import { motion } from "framer-motion";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import useSWR from "swr";
 import {
@@ -111,7 +110,7 @@ const Role = ({ role }: { role: RoleRequirementsAndRewards }) => {
       h="80%"
       maxH="80%"
       overflowY="auto"
-      spacing={4}
+      gap={4}
     >
       <Text fontSize="xl" fontWeight="bold">
         {role.name}
@@ -200,7 +199,6 @@ const RolesCarousel = ({ roles }: { roles: RoleRequirementsAndRewards[] }) => {
         position="relative"
       >
         <IconButton
-          icon={<ChevronLeftIcon />}
           onClick={prevRole}
           position="absolute"
           left={2}
@@ -208,7 +206,9 @@ const RolesCarousel = ({ roles }: { roles: RoleRequirementsAndRewards[] }) => {
           colorScheme="blue"
           variant="ghost"
           aria-label="Previous gate"
-        />
+        >
+          <ChevronLeftIcon />
+        </IconButton>
         <Flex
           w={isMobile ? "100%" : "80%"}
           h="100%"
@@ -217,31 +217,16 @@ const RolesCarousel = ({ roles }: { roles: RoleRequirementsAndRewards[] }) => {
           align="center"
           position="relative"
         >
-          {roles.map((role, index) => (
-            <motion.div
-              key={role.id}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{
-                opacity: index === currentIndex ? 1 : 0.5,
-                scale: index === currentIndex ? 1 : 0.8,
-                x: `${(index - currentIndex) * 100}%`,
-              }}
-              transition={{ duration: 0.5 }}
-              style={{
-                position: "absolute",
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Role role={role} />
-            </motion.div>
-          ))}
+          {roles
+            .map((role, index) => {
+              if (index !== currentIndex) {
+                return null;
+              }
+              return <Role key={index} role={role} />;
+            })
+            .filter(Boolean)}
         </Flex>
         <IconButton
-          icon={<ChevronRightIcon />}
           onClick={nextRole}
           position="absolute"
           right={2}
@@ -249,7 +234,9 @@ const RolesCarousel = ({ roles }: { roles: RoleRequirementsAndRewards[] }) => {
           colorScheme="blue"
           variant="ghost"
           aria-label="Next gate"
-        />
+        >
+          <ChevronRightIcon />
+        </IconButton>
       </Flex>
     </Flex>
   );
@@ -258,23 +245,29 @@ const RolesCarousel = ({ roles }: { roles: RoleRequirementsAndRewards[] }) => {
 export default function Roles() {
   const { address } = useAccount();
   const { signMessageAsync } = useSignMessage();
-  const [publicProfile] = useAtom(publicProfileAtom);
+  const [publicProfile, setPublicProfile] = useAtom(publicProfileAtom);
+  const [fetchingProfile, setFetchingProfile] = useState(false);
 
   const { data: publicRoles, isLoading: isPublicRolesLoading } = useSWR(
     ["roles", "public"],
     fetchFeaturedRoles
   );
 
-  const { data: userProfile, isLoading: isUserProfileLoading } = useSWR(
-    ["user", address],
-    () => fetchUserProfile(signMessageAsync, address)
-  );
+  if (!publicProfile) {
+    if (!fetchingProfile) {
+      setFetchingProfile(true);
+      fetchUserProfile(signMessageAsync, address).then((profile) => {
+        setPublicProfile(profile);
+        setFetchingProfile(false);
+      });
+    }
+  }
 
-  console.log("userProfile", userProfile);
+  console.log("userProfile", publicProfile);
 
   const { data: memberships, isLoading: isMembershipsLoading } = useSWR(
-    address ? ["memberships", userProfile?.id] : null,
-    () => fetchMemberships(userProfile?.id)
+    address ? ["memberships", publicProfile?.id] : null,
+    () => fetchMemberships(publicProfile?.id)
   );
 
   console.log("memberships", memberships);
@@ -290,9 +283,7 @@ export default function Roles() {
   }
 
   if (address && !publicProfile?.publicKey) {
-    return (
-      <Text>You need to create an guild.xyz account to access gates.</Text>
-    );
+    return <Text>Fetching profile...</Text>;
   }
 
   return <RolesCarousel roles={publicRoles} />;

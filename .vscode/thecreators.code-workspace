@@ -1,13 +1,8 @@
 {
   "folders": [
     {
-      "path": "../../guild-sdk"
-    },
-    {
+      "name": "thecreators",
       "path": ".."
-    },
-    {
-      "path": "../../guild.xyz"
     }
   ],
   "settings": {}

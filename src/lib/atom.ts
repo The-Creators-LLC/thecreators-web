@@ -1,5 +1,6 @@
 import { atom } from "jotai";
 import { PublicUserProfile } from "@guildxyz/types";
+import { atomWithStorage } from "jotai/utils";
 
 export const accessAtom = atom<
   Record<
@@ -16,4 +17,6 @@ export const accessAtom = atom<
   >
 >({});
 
-export const publicProfileAtom = atom<PublicUserProfile | null>(null);
+export const publicProfileAtom = atomWithStorage<
+  (PublicUserProfile & { onboardingDone?: boolean }) | undefined
+>("publicProfile", undefined);

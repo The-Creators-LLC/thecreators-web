@@ -8,5 +8,6 @@ Install the dependencies and run the development server:
 
 ```bash
 npm install
+npx @chakra-ui/cli snippet add
 npm run dev
 ```

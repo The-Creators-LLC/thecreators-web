@@ -6,7 +6,6 @@ import { http } from "viem";
 import { base } from "viem/chains";
 import { WagmiProvider, createConfig } from "wagmi";
 import "../lib/guild";
-import "./globals.css";
 import { injected, walletConnect } from "wagmi/connectors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Provider as JotaiProvider } from "jotai";
@@ -37,7 +36,7 @@ export default function RootLayout({
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <JotaiProvider>
-          <html lang="en">
+          <html lang="en" suppressHydrationWarning>
             <body className={inter.className}>{children}</body>
           </html>
         </JotaiProvider>

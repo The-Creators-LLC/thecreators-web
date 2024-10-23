@@ -4,25 +4,26 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:expose": "ipconfig getifaddr en0 && next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "@chakra-ui/icons": "2.1.1",
-    "@chakra-ui/react": "2.8.2",
-    "@emotion/react": "11.13.3",
-    "@emotion/styled": "11.13.0",
-    "@guildxyz/sdk": "2.6.8",
-    "framer-motion": "11.5.6",
-    "jotai": "2.10.0",
-    "lucide-react": "0.445.0",
-    "next": "14.2.13",
+    "@chakra-ui/react": "3.0.2",
+    "@emotion/react": "^11.13.3",
+    "@guildxyz/sdk": "2.6.9",
+    "jotai": "2.10.1",
+    "lucide-react": "0.454.0",
+    "next": "15.0.2",
+    "next-themes": "^0.3.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-icons": "^5.3.0",
     "swr": "2.2.5",
-    "viem": "2.21.12",
-    "wagmi": "2.12.13"
+    "viem": "2.21.37",
+    "wagmi": "2.12.25"
   },
   "devDependencies": {
     "@types/node": "latest",
