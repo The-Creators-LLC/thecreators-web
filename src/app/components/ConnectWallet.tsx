@@ -1,11 +1,9 @@
 import { accessAtom, publicProfileAtom } from "@/lib/atom";
-import { fetchUserProfile, getSigner, guildClient } from "@/lib/guild";
+import { fetchUserProfile, guildClient } from "@/lib/guild";
 import {
-  DialogActionTrigger,
   DialogBody,
   DialogCloseTrigger,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogRoot,
   DialogTitle,
@@ -13,11 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button, Flex, Text } from "@chakra-ui/react";
 import { useAtom } from "jotai";
-import {
-  RiArrowRightSLine,
-  RiCheckDoubleFill,
-  RiCheckLine,
-} from "react-icons/ri";
+import { RiArrowRightSLine, RiCheckLine } from "react-icons/ri";
 import useSWR from "swr";
 import { useAccount, useConnect, useDisconnect, useSignMessage } from "wagmi";
 
@@ -101,7 +95,39 @@ export function ConnectWalletLarge() {
   const { connectors, connect } = useConnect();
   const { address } = useAccount();
 
+  const { signMessageAsync } = useSignMessage();
+
+  const [publicProfile, setPublicProfile] = useAtom(publicProfileAtom);
+
   if (address) {
+    if (!publicProfile) {
+      return (
+        <Button
+          color="white"
+          backgroundColor="black"
+          variant="solid"
+          height="4em"
+          width="90%"
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          padding="2em"
+          borderRadius="10px"
+          borderColor="#004CBE"
+          borderWidth="1px"
+          onClick={() => {
+            fetchUserProfile(signMessageAsync, address).then((profile) => {
+              setPublicProfile(profile);
+            });
+          }}
+        >
+          <Text fontSize="sm" maxWidth="80%" overflow="clip">
+            Sign on your wallet
+          </Text>
+          <RiArrowRightSLine />
+        </Button>
+      );
+    }
     return (
       <Button
         color="white"
@@ -118,7 +144,9 @@ export function ConnectWalletLarge() {
         borderWidth="1px"
       >
         <Text fontSize="sm" maxWidth="80%" overflow="clip">
-          {address}
+          {address.length > 17
+            ? `${address.slice(0, 7)}...${address.slice(-7)}`
+            : address}
         </Text>{" "}
         <Flex
           backgroundColor="white"

@@ -1,6 +1,12 @@
 import { useEffect, useRef } from "react";
 
-const Stars = ({ numStars = 200 }) => {
+const Stars = ({
+  numStars = 200,
+  onboardingFlowFinished,
+}: {
+  onboardingFlowFinished: boolean;
+  numStars?: number;
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -45,7 +51,14 @@ const Stars = ({ numStars = 200 }) => {
   return (
     <canvas
       ref={canvasRef}
-      style={{ position: "fixed", top: 0, left: 0, zIndex: 0 }}
+      style={{
+        position: "fixed",
+        top: onboardingFlowFinished ? -200 : 0,
+        //opacity: onboardingFlowFinished ? 0 : 1,
+        left: 0,
+        zIndex: 0,
+        transition: "all 5s",
+      }}
     />
   );
 };

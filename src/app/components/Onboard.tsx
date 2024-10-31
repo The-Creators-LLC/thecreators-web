@@ -12,6 +12,8 @@ import { useState, useRef } from "react";
 import { RiArrowRightSLine, RiArrowUpSLine, RiCheckLine } from "react-icons/ri";
 import { ConnectWalletLarge } from "./ConnectWallet";
 import { useAccount } from "wagmi";
+import { useAtom } from "jotai";
+import { publicProfileAtom } from "@/lib/atom";
 
 const ROTATE_Y = "15"; // Changes the height of the diamond
 
@@ -90,13 +92,15 @@ const FirstButton = ({ setIsUnlocked }: { setIsUnlocked: Function }) => {
 
 const ConnectAccounts = ({ onClaimed }: { onClaimed: Function }) => {
   const { isConnected } = useAccount();
+
+  const [publicProfile] = useAtom(publicProfileAtom);
   return (
     <Center position="absolute" top="30%" left="20%" width="60%">
       <Flex
         direction="column"
         justify="center"
         align="center"
-        gap={6}
+        gap={3}
         width="100%"
       >
         <Heading as="h2" size="3xl">
@@ -120,16 +124,18 @@ const ConnectAccounts = ({ onClaimed }: { onClaimed: Function }) => {
         >
           <Text>Connect social (WIP)</Text> <RiArrowRightSLine />
         </Button>
-        <Button
-          backgroundColor="#004CBE"
-          color="white"
-          width="90%"
-          padding="2em"
-          disabled={!isConnected}
-          onClick={() => onClaimed()}
-        >
-          <Text>Claim 1 GATE POINT</Text>
-        </Button>
+        {isConnected && publicProfile && (
+          <Button
+            backgroundColor="#004CBE"
+            color="white"
+            width="90%"
+            padding="2em"
+            disabled={!isConnected}
+            onClick={() => onClaimed()}
+          >
+            <Text>Claim 1 GATE POINT</Text>
+          </Button>
+        )}
       </Flex>
     </Center>
   );
@@ -137,16 +143,19 @@ const ConnectAccounts = ({ onClaimed }: { onClaimed: Function }) => {
 
 const Content = ({
   ready,
+  onboardingDone,
   setReady,
 }: {
   ready: boolean;
+  onboardingDone: boolean;
   setReady: Function;
 }) => {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [claimed, setClaimed] = useState(false);
+  const [publicProfile, setPublicProfile] = useAtom(publicProfileAtom);
   const { isConnected } = useAccount();
 
-  if (claimed) {
+  if (publicProfile && (onboardingDone || claimed)) {
     return (
       <Box
         transform={ready ? "scale(30)" : ""}
@@ -195,7 +204,10 @@ const Content = ({
               width="90%"
               padding="2em"
               disabled={!isConnected}
-              onClick={() => setReady(true)}
+              onClick={() => {
+                setPublicProfile({ ...publicProfile, onboardingDone: true });
+                setReady(true);
+              }}
             >
               <RiArrowUpSLine />
               <Text>Enter web3</Text>
@@ -213,8 +225,31 @@ const Content = ({
   return <FirstButton setIsUnlocked={setIsUnlocked} />;
 };
 
-const Onboard = ({ onboardingDone }: { onboardingDone: Function }) => {
+const Onboard = ({
+  onboardingDoneCallback,
+  onboardingDone,
+}: {
+  onboardingDoneCallback: Function;
+  onboardingDone: boolean;
+}) => {
   const [ready, setReady] = useState(false);
+
+  const triggerAnimation = () => {
+    setReady(true);
+    setTimeout(() => {
+      console.log("onboardingDoneCallback");
+      onboardingDoneCallback();
+    }, 1500);
+  };
+
+  if (!ready && onboardingDone) {
+    console.log("set timout for triggerAnimation");
+    setTimeout(() => {
+      console.log("triggerAnimation");
+      triggerAnimation();
+    }, 100);
+  }
+
   return (
     <>
       <Center height="100vh" flexDirection="column" padding={4}>
@@ -242,12 +277,8 @@ const Onboard = ({ onboardingDone }: { onboardingDone: Function }) => {
           />
           <Content
             ready={ready}
-            setReady={() => {
-              setReady(true);
-              setTimeout(() => {
-                onboardingDone();
-              }, 2500);
-            }}
+            onboardingDone={onboardingDone}
+            setReady={triggerAnimation}
           />
         </Box>
       </Center>

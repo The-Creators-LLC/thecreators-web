@@ -106,9 +106,8 @@ const Role = ({ role }: { role: RoleRequirementsAndRewards }) => {
       borderRadius="lg"
       p={6}
       textAlign="center"
-      w="60%"
-      h="80%"
-      maxH="80%"
+      w="60vw"
+      h="60vh"
       overflowY="auto"
       gap={4}
     >
@@ -244,24 +243,12 @@ const RolesCarousel = ({ roles }: { roles: RoleRequirementsAndRewards[] }) => {
 
 export default function Roles() {
   const { address } = useAccount();
-  const { signMessageAsync } = useSignMessage();
-  const [publicProfile, setPublicProfile] = useAtom(publicProfileAtom);
-  const [fetchingProfile, setFetchingProfile] = useState(false);
+  const [publicProfile] = useAtom(publicProfileAtom);
 
   const { data: publicRoles, isLoading: isPublicRolesLoading } = useSWR(
     ["roles", "public"],
     fetchFeaturedRoles
   );
-
-  if (!publicProfile) {
-    if (!fetchingProfile) {
-      setFetchingProfile(true);
-      fetchUserProfile(signMessageAsync, address).then((profile) => {
-        setPublicProfile(profile);
-        setFetchingProfile(false);
-      });
-    }
-  }
 
   console.log("userProfile", publicProfile);
 

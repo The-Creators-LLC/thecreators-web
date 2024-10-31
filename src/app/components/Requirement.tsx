@@ -17,7 +17,7 @@ export default function Requirement({
         return (
           <>
             Have the{" "}
-            <Link href={link} color="blue.500" isExternal>
+            <Link href={link} color="blue.500">
               {/* TODO get role name from guild-sdk */}
               role {requirement.data.roleId} <ExternalLinkIcon mx="2px" />
             </Link>
@@ -31,7 +31,7 @@ export default function Requirement({
         return (
           <>
             Follow the channel{" "}
-            <Link href={link} color="blue.500" isExternal>
+            <Link href={link} color="blue.500">
               {requirement.data.id} <ExternalLinkIcon mx="2px" />
             </Link>
             channel on 𝕏
@@ -52,7 +52,7 @@ export default function Requirement({
         return (
           <>
             Follow{" "}
-            <Link href={link} color="blue.500" isExternal>
+            <Link href={link} color="blue.500">
               {requirement.data.id} <ExternalLinkIcon mx="2px" />
             </Link>
             on 𝕏
@@ -83,7 +83,7 @@ export default function Requirement({
         return (
           <>
             Submit{" "}
-            <Link href={link} color="blue.500" isExternal>
+            <Link href={link} color="blue.500">
               this form <ExternalLinkIcon mx="2px" />
             </Link>
           </>

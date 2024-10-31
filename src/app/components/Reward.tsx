@@ -102,7 +102,7 @@ export default function Reward({
         return (
           <Text fontSize="sm" color="gray.500">
             Discord:{" "}
-            <Link href={link} color="blue.500" isExternal>
+            <Link href={link} color="blue.500">
               {reward.guildReward?.platformGuildData.name}{" "}
               <ExternalLinkIcon mx="2px" />
             </Link>

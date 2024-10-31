@@ -1,35 +1,47 @@
 "use client";
 
-import { ChakraProvider, Stack } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
 
-import dynamic from "next/dynamic";
 import { system } from "@/lib/theme";
 import { useAccount } from "wagmi";
 import { ThemeProvider } from "next-themes";
-import { publicProfileAtom } from "@/lib/atom";
-import { useAtom } from "jotai";
 import { useState } from "react";
 import Onboard from "./components/Onboard";
 import Stars from "./components/Stars";
 import TopBar from "./components/TopBar";
-import Roles from "./components/Roles";
+import CastleView from "./components/CastleView";
+import { useAtom } from "jotai";
+import { publicProfileAtom } from "@/lib/atom";
+import { on } from "events";
 
 export default function Home() {
   const { isConnected } = useAccount();
-  const [onboardingDone, setOnboardingDone] = useState(false);
+  const [onboardingFlowFinished, setOnboardingFlowFinished] = useState(false);
+
   const [publicProfile] = useAtom(publicProfileAtom);
+
+  if (!isConnected && onboardingFlowFinished) {
+    // Reset onboarding flow when user disconnects
+    setOnboardingFlowFinished(false);
+  }
+
+  const onboardingDone =
+    onboardingFlowFinished || !!publicProfile?.onboardingDone;
+
+  console.log("onboardingDone", onboardingDone, onboardingFlowFinished);
 
   return (
     <ChakraProvider value={system}>
       <ThemeProvider attribute="class" disableTransitionOnChange>
-        <Stars />
+        <Stars onboardingFlowFinished={onboardingFlowFinished} />
         <TopBar />
-        {isConnected && (publicProfile?.onboardingDone || onboardingDone) ? (
-          <Stack alignItems={"start"} gap={8} padding={8} paddingTop={16}>
-            <Roles />
-          </Stack>
+        {onboardingFlowFinished ? (
+          <CastleView />
         ) : (
-          <Onboard onboardingDone={() => setOnboardingDone(true)} />
+          <Onboard
+            onboardingDoneCallback={() => setOnboardingFlowFinished(true)}
+            onboardingDone={onboardingDone}
+          />
         )}
       </ThemeProvider>
     </ChakraProvider>
