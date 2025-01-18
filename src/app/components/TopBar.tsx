@@ -4,7 +4,7 @@ import Link from "next/link";
 import { publicProfileAtom } from "@/lib/atom";
 import { useAtom } from "jotai";
 
-const DEV_MODE = true;
+const DEV_MODE = false;
 
 const TopBar = ({ resetOnboarding }: { resetOnboarding: () => void }) => {
   const { isConnected } = useAccount();
@@ -58,7 +58,7 @@ const TopBar = ({ resetOnboarding }: { resetOnboarding: () => void }) => {
                 resetOnboarding();
               }}
             >
-              Go back (DEV)
+              Reset animation (DEV)
             </Button>
           )}
         </Box>

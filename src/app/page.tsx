@@ -18,23 +18,20 @@ export default function Home() {
   const [onboardingFlowFinished, setOnboardingFlowFinished] = useState(false);
   const [publicProfile] = useAtom(publicProfileAtom);
 
-  // If the user disconnects after finishing onboarding, reset.
   if (!isConnected && onboardingFlowFinished) {
     setOnboardingFlowFinished(false);
   }
 
-  // The user's stored onboarding state or the local finishing step
   const onboardingDone =
     onboardingFlowFinished || !!publicProfile?.onboardingDone;
   console.log("onboardingDone", onboardingDone, onboardingFlowFinished);
 
-  // This state toggles from Stars -> Hyperspace after a 1 second delay
   const [hyperspaceActive, setHyperspaceActive] = useState(false);
 
   useEffect(() => {
     if (onboardingFlowFinished) {
-      // Wait 1 second, then fade out Stars & fade in Hyperspace
-      const timer = setTimeout(() => setHyperspaceActive(true), 1000);
+      // Wait 111 milliseconds, then fade out Stars & fade in Hyperspace
+      const timer = setTimeout(() => setHyperspaceActive(true), 111);
       return () => clearTimeout(timer);
     } else {
       // If we revert, show stars again

@@ -110,7 +110,12 @@ const ConnectAccounts = ({ onClaimed }: { onClaimed: Function }) => {
           paddingTop={8}
           paddingLeft={4}
         >
-          <Image src="/clankercon.svg" alt="Clankercon" width="90%" />
+          <Image
+            src="/clankercon.svg"
+            alt="Clankercon"
+            width="90%"
+            color="white"
+          />
         </Heading>
         <Text
           color="gray.300"
@@ -173,7 +178,7 @@ const Content = ({
       <Box
         transform={ready ? "scale(30)" : ""}
         opacity={ready ? "0" : "1"}
-        transition="all 2s"
+        transition="all 4s"
       >
         <Center
           position="absolute"
@@ -190,7 +195,7 @@ const Content = ({
               display="flex"
               alignItems="center"
               justifyContent="center"
-              transition="transform 1s"
+              transition="transform 20s"
               transform={`rotateY(${ROTATE_Y}deg) rotateZ(45deg)`}
               _hover={{
                 transform: `rotateY(${ROTATE_Y}deg) rotateZ(45deg) scale(1.08)`,
@@ -209,13 +214,23 @@ const Content = ({
               </Flex>
             </Box>
             <Heading as="h2" size="3xl" paddingLeft={4}>
-              <Image src="/clankercon.svg" alt="Clankercon" width="90%" />
+              <Image
+                src="/clankercon.svg"
+                alt="Clankercon"
+                width="90%"
+                color="white"
+              />
             </Heading>
             <Button
               backgroundColor="#004CBE"
               color="white"
               width="90%"
               padding="2em"
+              transition="background-color 1.5s ease"
+              _hover={{
+                backgroundColor: "white",
+                color: "white",
+              }}
               disabled={!isConnected}
               onClick={() => {
                 setPublicProfile({ ...publicProfile, onboardingDone: true });
@@ -223,7 +238,16 @@ const Content = ({
               }}
             >
               <RiArrowUpSLine />
-              <Text>Enter web3</Text>
+              <Text>
+                Enter{" "}
+                <Image
+                  src="/clankercon.svg"
+                  alt="Clankercon"
+                  height="0.8em"
+                  marginLeft={1}
+                  marginTop={4.2}
+                />
+              </Text>
               <RiArrowUpSLine />
             </Button>
           </Stack>
@@ -252,7 +276,7 @@ const Onboard = ({
     setTimeout(() => {
       console.log("onboardingDoneCallback");
       onboardingDoneCallback();
-    }, 1500);
+    }, 4500);
   };
 
   if (!ready && onboardingDone) {
@@ -272,7 +296,7 @@ const Onboard = ({
             alt="Gate"
             width="100%"
             pointerEvents="none"
-            transition="transform 2s"
+            transition="transform 10s"
             zIndex={ready ? 100 : 0}
             transform={ready ? "scale(10)" : ""}
           />

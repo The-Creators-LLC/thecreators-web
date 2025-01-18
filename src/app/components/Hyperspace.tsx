@@ -50,21 +50,21 @@ export default function Hyperspace({ visible }: { visible: boolean }) {
       <style jsx global>{`
         /* Container fade in/out */
         .hyperspace-container {
-          opacity: 1;
-          transition: opacity 1.5s ease;
+          opacity: 0.5;
+          transition: opacity 7.41s ease;
         }
         .hyperspace-container.hidden {
           opacity: 0;
         }
         .hyperspace-container.visible {
-          opacity: 1;
+          opacity: 0.8;
         }
 
         /* Hyperspace animations taken from index.css */
         .scene {
-          display: inline-block;
-          perspective: 5px;
-          perspective-origin: 50% 50%;
+          display: block;
+          perspective: 6px;
+          perspective-origin: 74% 74%;
           position: relative;
           width: 100%;
           height: 100%;
@@ -72,12 +72,13 @@ export default function Hyperspace({ visible }: { visible: boolean }) {
 
         .wrap {
           position: absolute;
-          width: 1000px;
-          height: 1000px;
-          left: -500px;
-          top: -500px;
+          width: 741px;
+          height: 741px;
+          left: 0%;
+          top: 0%;
+          transform: translate(-50%, -50%);
           transform-style: preserve-3d;
-          animation: move 12s infinite linear;
+          animation: move 27s infinite linear;
           animation-fill-mode: forwards;
         }
 
@@ -119,10 +120,10 @@ export default function Hyperspace({ visible }: { visible: boolean }) {
 
         @keyframes move {
           0% {
-            transform: translateZ(-500px) rotate(0deg);
+            transform: translateZ(-200px) rotate(0deg);
           }
           100% {
-            transform: translateZ(500px) rotate(0deg);
+            transform: translateZ(200px) rotate(0deg);
           }
         }
 

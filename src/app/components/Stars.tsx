@@ -64,7 +64,9 @@ const Stars = ({
         zIndex: 0,
         pointerEvents: "none",
         opacity: hyperspaceActive ? 0 : 1,
-        transition: "opacity 1.5s",
+        transitionProperty: "opacity, transform",
+        transition: "opacity 1.5s, transform 1.5s",
+        transitionDelay: "0.5s",
       }}
     />
   );

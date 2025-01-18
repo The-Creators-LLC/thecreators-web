@@ -37,8 +37,9 @@ export default function WebGLView() {
             allow="camera; fullscreen; autoplay; display-capture; microphone; clipboard-write"
             style={{
               zIndex: 200,
-              transition: "all 1s",
-              transitionDelay: "4s",
+              transition: "all 1.5s",
+              transitionDelay: "5s",
+              transform: phase === 0 ? "translate(25vw, 25vh)" : "none",
               width: phase === 0 ? "0vw" : "100vw",
               height: phase === 0 ? "0vh" : "100vh",
             }}
