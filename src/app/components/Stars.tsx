@@ -2,10 +2,14 @@ import { useEffect, useRef } from "react";
 
 const Stars = ({
   numStars = 200,
-  onboardingFlowFinished,
+  onboardingFlowFinished = false,
+  starRadius = 1.5,
+  minStarRadius = 0.5,
 }: {
-  onboardingFlowFinished: boolean;
+  onboardingFlowFinished?: boolean;
   numStars?: number;
+  starRadius?: number;
+  minStarRadius?: number;
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -29,7 +33,7 @@ const Stars = ({
       for (let i = 0; i < numStars; i++) {
         const x = Math.random() * width;
         const y = Math.random() * height;
-        const radius = Math.random() * 1.5;
+        const radius = Math.max(Math.random() * starRadius, minStarRadius);
         drawStar(x, y, radius);
       }
     };
@@ -46,18 +50,17 @@ const Stars = ({
     return () => {
       window.removeEventListener("resize", resizeCanvas);
     };
-  }, [numStars]);
+  }, [numStars, starRadius]);
 
   return (
     <canvas
       ref={canvasRef}
       style={{
         position: "fixed",
-        top: onboardingFlowFinished ? -200 : 0,
-        //opacity: onboardingFlowFinished ? 0 : 1,
+        transform: onboardingFlowFinished ? "scale(1.5)" : "scale(1)",
         left: 0,
         zIndex: 0,
-        transition: "all 5s",
+        transition: "all 10s",
       }}
     />
   );

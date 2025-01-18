@@ -56,6 +56,7 @@ export default function CastleView() {
       <Box height="100vh" width="100vw">
         <Image
           src="castle_outside.svg"
+          alt="castle"
           width="100vw"
           zIndex={0}
           position="fixed"
@@ -66,24 +67,6 @@ export default function CastleView() {
           transitionDuration="5s, 5s"
           transitionDelay="2s, 0s"
         />
-        {/*  <Box
-          padding={8}
-          paddingTop={32}
-          zIndex={1}
-          opacity={phase === 0 ? 1 : 0}
-          transition="all 5s"
-          transitionDelay="5s"
-        >
-          <Heading
-            as="h1"
-            size="4xl"
-            textAlign="center"
-            marginTop={phase === 0 ? "100vh" : 0}
-            transition="all 4s"
-          >
-            The creators dungeon
-          </Heading>
-        </Box> */}
       </Box>
     </Box>
   );

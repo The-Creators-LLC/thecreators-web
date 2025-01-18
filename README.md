@@ -11,3 +11,7 @@ npm install
 npx @chakra-ui/cli snippet add
 npm run dev
 ```
+
+## Credits
+
+- [Hyperspace](https://codepen.io/noahblon/pen/DpNRyR) by [Noah Blon](https://codepen.io/noahblon)

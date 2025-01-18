@@ -103,14 +103,26 @@ const ConnectAccounts = ({ onClaimed }: { onClaimed: Function }) => {
         gap={3}
         width="100%"
       >
-        <Heading as="h2" size="3xl">
-          Gate 0x
+        <Heading
+          as="h2"
+          size="3xl"
+          paddingBottom={8}
+          paddingTop={8}
+          paddingLeft={4}
+        >
+          <Image src="/clankercon.svg" alt="Clankercon" width="90%" />
         </Heading>
-        <Text color="gray.300" fontSize="md" width="60%" textAlign="center">
-          Connect your wallet and a social account
+        <Text
+          color="gray.300"
+          fontSize="md"
+          width="60%"
+          textAlign="center"
+          paddingBottom={4}
+        >
+          Connect your wallet {/* and a social account */}
         </Text>
         <ConnectWalletLarge />
-        <Button
+        {/* <Button
           color="white"
           backgroundColor="black"
           variant="solid"
@@ -123,13 +135,14 @@ const ConnectAccounts = ({ onClaimed }: { onClaimed: Function }) => {
           disabled
         >
           <Text>Connect social (WIP)</Text> <RiArrowRightSLine />
-        </Button>
+        </Button> */}
         {isConnected && publicProfile && (
           <Button
             backgroundColor="#004CBE"
             color="white"
             width="90%"
             padding="2em"
+            marginTop={8}
             disabled={!isConnected}
             onClick={() => onClaimed()}
           >
@@ -195,8 +208,8 @@ const Content = ({
                 <RiCheckLine color="black" transform="scale(2)" />
               </Flex>
             </Box>
-            <Heading as="h2" size="3xl">
-              Gate 0x
+            <Heading as="h2" size="3xl" paddingLeft={4}>
+              <Image src="/clankercon.svg" alt="Clankercon" width="90%" />
             </Heading>
             <Button
               backgroundColor="#004CBE"
@@ -253,18 +266,6 @@ const Onboard = ({
   return (
     <>
       <Center height="100vh" flexDirection="column" padding={4}>
-        <Heading
-          as="h1"
-          size="5xl"
-          marginBottom={24}
-          marginTop={24}
-          textAlign="center"
-          letterSpacing={3}
-          opacity={ready ? "0" : "1"}
-          transition="all 2s"
-        >
-          Unlock your gate to web3
-        </Heading>
         <Box position="relative" width="100%" maxWidth="534px">
           <Image
             src="/gate.png"

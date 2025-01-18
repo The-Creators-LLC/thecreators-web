@@ -9,10 +9,9 @@ import { useState } from "react";
 import Onboard from "./components/Onboard";
 import Stars from "./components/Stars";
 import TopBar from "./components/TopBar";
-import CastleView from "./components/CastleView";
 import { useAtom } from "jotai";
 import { publicProfileAtom } from "@/lib/atom";
-import { on } from "events";
+import WebGLView from "./components/WebGLView";
 
 export default function Home() {
   const { isConnected } = useAccount();
@@ -34,13 +33,13 @@ export default function Home() {
     <ChakraProvider value={system}>
       <ThemeProvider attribute="class" disableTransitionOnChange>
         <Stars onboardingFlowFinished={onboardingFlowFinished} />
-        <TopBar />
+        <TopBar resetOnboarding={() => setOnboardingFlowFinished(false)} />
         {onboardingFlowFinished ? (
-          <CastleView />
+          <WebGLView />
         ) : (
           <Onboard
             onboardingDoneCallback={() => setOnboardingFlowFinished(true)}
-            onboardingDone={onboardingDone}
+            onboardingDone={isConnected && onboardingDone}
           />
         )}
       </ThemeProvider>

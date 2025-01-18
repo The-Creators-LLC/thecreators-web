@@ -4,10 +4,12 @@ import Link from "next/link";
 import { publicProfileAtom } from "@/lib/atom";
 import { useAtom } from "jotai";
 
-const TopBar = () => {
+const DEV_MODE = true;
+
+const TopBar = ({ resetOnboarding }: { resetOnboarding: () => void }) => {
   const { isConnected } = useAccount();
   const { disconnect } = useDisconnect();
-  const [_, setPublicProfile] = useAtom(publicProfileAtom);
+  const [publicProfile, setPublicProfile] = useAtom(publicProfileAtom);
 
   const logout = () => {
     disconnect();
@@ -30,18 +32,33 @@ const TopBar = () => {
         margin="0 11%"
         alignItems="center"
         justifyContent="space-between"
+        gap={4}
       >
         <Link href="/">
           <Image src="/thecreators_logo_white.png" alt="Logo" height="24px" />
         </Link>
         <Box>
-          {isConnected ? (
+          {isConnected && (
             <Button color="white" backgroundColor="black" onClick={logout}>
               Log out
             </Button>
-          ) : (
+          )}
+          {/* {!isConnected && publicProfile?.onboardingDone && (
             <Button color="white" backgroundColor="black">
               Sign In
+            </Button>
+          )} */}
+          {publicProfile?.onboardingDone && DEV_MODE && (
+            <Button
+              marginLeft={4}
+              color="white"
+              backgroundColor="black"
+              onClick={() => {
+                setPublicProfile({ ...publicProfile, onboardingDone: false });
+                resetOnboarding();
+              }}
+            >
+              Go back (DEV)
             </Button>
           )}
         </Box>
