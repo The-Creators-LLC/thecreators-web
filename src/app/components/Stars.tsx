@@ -5,11 +5,13 @@ const Stars = ({
   onboardingFlowFinished = false,
   starRadius = 1.5,
   minStarRadius = 0.5,
+  hyperspaceActive = false,
 }: {
   onboardingFlowFinished?: boolean;
   numStars?: number;
   starRadius?: number;
   minStarRadius?: number;
+  hyperspaceActive?: boolean;
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -50,7 +52,7 @@ const Stars = ({
     return () => {
       window.removeEventListener("resize", resizeCanvas);
     };
-  }, [numStars, starRadius]);
+  }, [numStars, starRadius, minStarRadius]);
 
   return (
     <canvas
@@ -60,7 +62,9 @@ const Stars = ({
         transform: onboardingFlowFinished ? "scale(1.5)" : "scale(1)",
         left: 0,
         zIndex: 0,
-        transition: "all 10s",
+        pointerEvents: "none",
+        opacity: hyperspaceActive ? 0 : 1,
+        transition: "opacity 1.5s",
       }}
     />
   );
